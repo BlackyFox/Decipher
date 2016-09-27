@@ -22,6 +22,42 @@ import ctypes
 
 def caesarDecrypt(cipher):
     logging.debug("Caesar decrypt")
+    while True:
+        know_key = raw_input("Do you know the Caesar cipher key (y or n)? ")
+        if know_key.lower() == "y":
+            logging.debug("Known key")
+            while True:
+                key = int(raw_input("Please, enter the key number (between 1 and 26): "))
+                if (key >= 1 and key <= 26):
+                    break
+                else:
+                    print(str(key) + " is not a valid key number.")
+            translated = ""
+            for symbol in cipher:
+                if symbol.isalpha():
+                    num = ord(symbol)
+                    num += key
+
+                    if symbol.isupper():
+                        if num > ord('Z'):
+                            num -= 26
+                        elif num < ord('A'):
+                            num += 26
+                    elif symbol.islower():
+                        if num > ord('z'):
+                            num -= 26
+                        elif num < ord('a'):
+                            num += 26
+                    translated += chr(num)
+                else:
+                    translated += symbol
+            print(translated)
+            break
+        if know_key.lower() == "n":
+            logging.debug("Unknown key")
+            break
+        else:
+            print("We could not understant your answer...")
 
 def vigenereDecrypt(cipher):
     logging.debug("Vigenère decrypt")
@@ -56,8 +92,16 @@ def main(arguments):
         logging.basicConfig(level=logging.DEBUG)
         logging.debug("Debug mode activated")
 
+    logging.debug(args.infile)
+
+    cipher = ""
+    for l in args.infile:
+        cipher += l
+
+    logging.debug(cipher)
+
     if args.caesar:
-        caesarDecrypt('toto')
+        caesarDecrypt(cipher)
 
 
 if __name__ == '__main__':
