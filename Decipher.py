@@ -49,39 +49,28 @@ def caesarDecrypt(cipher):
         if know_key.lower() == "y":
             logging.debug("Known key")
             key = getCaesarKey()
-            result = ''
-            for l in cipher:
-                if l.isalpha():
-                    num = ord(l)
-                    num -= key
-                    if l.isupper():
-                        if num > ord('Z'):
-                            num -= 26
-                        elif num < ord('A'):
-                            num += 26
-                    elif l.islower():
-                        if num > ord('z'):
-                            num -= 26
-                        elif num < ord('a'):
-                            num += 26
-                    result += chr(num)
-                else:
-                    result += l
+            result = caesarCore('d', cipher, key)
             return result
         if know_key.lower() == "n":
             logging.debug("Unknown key")
-            break
+            result = ''
+            for key in range(0,27):
+                result += str(key) + ": " + caesarCore('d', cipher, key)
+                if result[-1:] != "\n":
+                    result += "\n"
+            return result
         else:
             print("We could not understant your answer...")
 
-def caesarEncrypt(plain):
-    logging.debug("Caesar encrypt")
-    key = getCaesarKey()
+def caesarCore(mode, text, key):
     result = ''
-    for l in plain:
+    for l in text:
         if l.isalpha():
             num = ord(l)
-            num += key
+            if mode is 'd':
+                num -= key
+            elif mode is 'e':
+                num += key
             if l.isupper():
                 if num > ord('Z'):
                     num -= 26
@@ -95,6 +84,12 @@ def caesarEncrypt(plain):
             result += chr(num)
         else:
             result += l
+    return result
+
+def caesarEncrypt(plain):
+    logging.debug("Caesar encrypt")
+    key = getCaesarKey()
+    result = caesarCore('e', plain, key)
     return result
 
 
