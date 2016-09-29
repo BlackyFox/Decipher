@@ -20,44 +20,83 @@ import subprocess
 import ctypes
 
 
+def getMode():
+    while True:
+        print("So you wish to encrypt or decrypt a message?")
+        mode = raw_input().lower()
+        if mode in 'encrypt e'.split():
+            return 'e'
+        elif mode in 'decrypt d'.split():
+            return 'd'
+        else:
+            print("Please, enter either \"encrypt\" or \"e\" to encrypt and \"decrypt\" or \"d\" to decrypt.")
+
+def getCaesarKey():
+    maxKey = 26
+    key = 0
+    while True:
+        print("Please enter the key number (1-%s): " % (maxKey))
+        key = int(raw_input())
+        if (key >= 1 and key <= maxKey):
+            return key
+        else:
+            print(str(key) + " is not a correct key.")
+
 def caesarDecrypt(cipher):
     logging.debug("Caesar decrypt")
     while True:
         know_key = raw_input("Do you know the Caesar cipher key (y or n)? ")
         if know_key.lower() == "y":
             logging.debug("Known key")
-            while True:
-                key = int(raw_input("Please, enter the key number (between 1 and 26): "))
-                if (key >= 1 and key <= 26):
-                    break
-                else:
-                    print(str(key) + " is not a valid key number.")
-            translated = ""
-            for symbol in cipher:
-                if symbol.isalpha():
-                    num = ord(symbol)
-                    num += key
-
-                    if symbol.isupper():
+            key = getCaesarKey()
+            result = ''
+            for l in cipher:
+                if l.isalpha():
+                    num = ord(l)
+                    num -= key
+                    if l.isupper():
                         if num > ord('Z'):
                             num -= 26
                         elif num < ord('A'):
                             num += 26
-                    elif symbol.islower():
+                    elif l.islower():
                         if num > ord('z'):
                             num -= 26
                         elif num < ord('a'):
                             num += 26
-                    translated += chr(num)
+                    result += chr(num)
                 else:
-                    translated += symbol
-            print(translated)
-            break
+                    result += l
+            return result
         if know_key.lower() == "n":
             logging.debug("Unknown key")
             break
         else:
             print("We could not understant your answer...")
+
+def caesarEncrypt(plain):
+    logging.debug("Caesar encrypt")
+    key = getCaesarKey()
+    result = ''
+    for l in plain:
+        if l.isalpha():
+            num = ord(l)
+            num += key
+            if l.isupper():
+                if num > ord('Z'):
+                    num -= 26
+                elif num < ord('A'):
+                    num += 26
+            elif l.islower():
+                if num > ord('z'):
+                    num -= 26
+                elif num < ord('a'):
+                    num += 26
+            result += chr(num)
+        else:
+            result += l
+    return result
+
 
 def vigenereDecrypt(cipher):
     logging.debug("Vigenère decrypt")
@@ -74,9 +113,19 @@ def playfairDecrypt(cipher):
 def enigmaDecrypt(cipher):
     logging.debug("Enigma decrypt")
 
+def outputIt(text, output):
+    if output:
+        with open(output, 'w') as out:
+            out.write("%s" % text)
+    else:
+        print(text)
 
 def main(arguments):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('-o', '--output', help="select output file")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('-e', '--encrypt', action='store_true', help="choose the encrypt mode")
+    mode.add_argument('-d', '--decrypt', action='store_true', help="choose the decrypt mode")
     algos = parser.add_mutually_exclusive_group()
     algos.add_argument('-C', '--caesar', action='store_true', help="Caesar cipher")
     algos.add_argument('-V', '--vigenere', action='store_true', help="Vigenère cipher")
@@ -100,8 +149,29 @@ def main(arguments):
 
     logging.debug(cipher)
 
-    if args.caesar:
-        caesarDecrypt(cipher)
+    if args.encrypt:
+        logging.debug("Encrypt mode selected")
+        mode = 'e'
+    elif args.decrypt:
+        logging.debug("Decrypt mode selected")
+        mode = 'd'
+    else:
+        mode = getMode()
+
+    if mode is 'e':
+        logging.debug("Start encryption")
+        if args.caesar:
+            enc = caesarEncrypt(cipher)
+            outputIt(enc, args.output)
+    elif mode is 'd':
+        logging.debug("Start decryption")
+        if args.caesar:
+            dec = caesarDecrypt(cipher)
+            outputIt(dec, args.output)
+    else:
+        print("Error choosing mode.\nQuitting...")
+        exit(1)
+
 
 
 if __name__ == '__main__':
