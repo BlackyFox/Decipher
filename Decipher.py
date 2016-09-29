@@ -12,12 +12,6 @@ import argparse
 import sys
 import string
 import logging
-import git
-import csv
-import signal
-import colorama
-import subprocess
-import ctypes
 
 
 def getMode():
