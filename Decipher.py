@@ -93,6 +93,9 @@ def vigenereDecrypt(cipher):
 def monoalphabeticDecrypt(cipher):
     logging.debug("Monoalphabetic decrypt")
 
+def adfgvxEncrypt(clear):
+    logging.debug("ADFGVX encrypt")
+
 def adfgvxDecrypt(cipher):
     logging.debug("ADFGVX decrypt")
 
